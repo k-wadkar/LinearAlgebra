@@ -1,7 +1,10 @@
 #include <iostream>
+#include <linalg/Matrix.hpp>
 
 int main()
 {
-    std::cout << "Hello CMake." << std::endl;
+	linalg::Matrix A(3, 4);
+    
+    std::cout << "The matrix was constructed." << std::endl;
     return 0;
 }
