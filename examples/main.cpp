@@ -3,8 +3,16 @@
 
 int main()
 {
-	linalg::Matrix A(3, 4);
+    std::size_t r;
+    std::size_t c;
     
-    std::cout << "The matrix was constructed." << std::endl;
+	std::cout << "Enter number of rows: ";
+	std::cin >> r;
+    std::cout << "Enter number of columns: ";
+    std::cin >> c;
+
+    const linalg::Matrix A(r, c);
+    
+    std::cout << "Rows: " << A.rows() << ", Cols: " << A.cols() << std::endl;
     return 0;
 }

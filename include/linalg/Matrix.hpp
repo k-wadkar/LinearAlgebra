@@ -12,5 +12,7 @@ namespace linalg {
 
 	public:
 		Matrix(std::size_t rows, std::size_t cols);
+		std::size_t rows() const;
+		std::size_t cols() const;
 	};
 }
