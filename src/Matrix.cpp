@@ -7,4 +7,9 @@ namespace linalg {
 	std::size_t Matrix::rows() const { return rows_; }
 
 	std::size_t Matrix::cols() const { return cols_; }
+
+	double& Matrix::operator()(std::size_t i, std::size_t j) {
+		// Row-major indexing formula
+		return data_[i * cols_ + j];
+	}
 }

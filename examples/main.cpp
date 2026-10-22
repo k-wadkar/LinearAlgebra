@@ -3,16 +3,12 @@
 
 int main()
 {
-    std::size_t r;
-    std::size_t c;
+    linalg::Matrix A(2, 3);
     
-	std::cout << "Enter number of rows: ";
-	std::cin >> r;
-    std::cout << "Enter number of columns: ";
-    std::cin >> c;
+    A(0, 1) = 7.0;
+    A(1, 2) = 5.0;
 
-    const linalg::Matrix A(r, c);
-    
-    std::cout << "Rows: " << A.rows() << ", Cols: " << A.cols() << std::endl;
+    std::cout << "El1 " << A(0, 1) << ", El2: " << A(1, 2) << std::endl;
     return 0;
 }
+
