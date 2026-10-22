@@ -23,5 +23,7 @@ namespace linalg {
 
 		// Overloaded operator() to access matrix elements in a 2D manner
 		double& operator()(std::size_t i, std::size_t j);
+
+		const double& operator()(std::size_t i, std::size_t j) const;
 	};
 }
