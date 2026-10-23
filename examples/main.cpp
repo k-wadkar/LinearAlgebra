@@ -1,15 +1,22 @@
 #include <iostream>
 #include <linalg/Matrix.hpp>
+#include <stdexcept>
 
 int main()
 {
-    linalg::Matrix A(2, 3);
+    const linalg::Matrix A(2, 3);
     
-	A(5, 1) = 7.0; // This line will cause a runtime error because it tries to access an out-of-bounds index
-    /*A(0, 1) = 7.0;
-    A(1, 2) = 5.0;*/
+    try {
+        std::cout << "Before access\n";
+        std::cout << A(5, 1) << "\n"; // This line will cause a runtime error because it tries to access an out-of-bounds index
+        std::cout << "After access\n";
+    }
+    catch (const std::out_of_range& e) {
+        std::cout << "Error: " << e.what() << "\n";
+    }
+    
+    std::cout << "Program finished" << std::endl;
 
-    //std::cout << A(0, 1) << std::endl;
     return 0;
 }
 
