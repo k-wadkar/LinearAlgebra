@@ -40,7 +40,7 @@ namespace linalg {
 			for (std::size_t j = 0; j < A.cols(); j++) {
 				os << std::setw(12) << A(i, j) << " ";
 			}
-			os << "\n";
+			os << '\n';
 		}
 
 		// Restore original output stream formatting
@@ -48,5 +48,21 @@ namespace linalg {
 		os.flags(oldFlags);
 
 		return os;
+	}
+
+	Matrix operator+(const Matrix& A, const Matrix& B) {
+		if (A.rows() != B.rows() || A.cols() != B.cols()) {
+			throw std::invalid_argument("Matrix dimensions don't match.");
+		}
+
+		Matrix C(A.rows(), A.cols());
+
+		for (std::size_t i = 0; i < A.rows(); i++) {
+			for (std::size_t j = 0; j < A.cols(); j++) {
+				C(i, j) = A(i, j) + B(i, j);
+			}
+		}
+
+		return C;
 	}
 }

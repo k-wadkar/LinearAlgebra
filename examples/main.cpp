@@ -4,20 +4,7 @@
 #include <iomanip>
 
 int main()
-{
-    //const linalg::Matrix A(2, 3);
-    //
-    //try {
-    //    std::cout << "Before access\n";
-    //    std::cout << A(5, 1) << "\n"; // This line will cause a runtime error because it tries to access an out-of-bounds index
-    //    std::cout << "After access\n";
-    //}
-    //catch (const std::out_of_range& e) {
-    //    std::cout << "Error: " << e.what() << "\n";
-    //}
-    //
-    //std::cout << "Program finished" << std::endl;
-    
+{   
     linalg::Matrix A(2, 3);
 
     A(0, 0) = 1;
@@ -26,8 +13,15 @@ int main()
     A(1, 0) = 4;
     A(1, 1) = 5;
     A(1, 2) = 6;
-    
-    std::cout << A;
+
+    linalg::Matrix B(2, 2);
+
+    try {
+        std::cout << A + B;
+    }
+    catch (const std::invalid_argument& e) {
+        std::cout << "Error: " << e.what() << std::endl;
+    }
     
     return 0;
 }
