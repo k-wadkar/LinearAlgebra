@@ -1,5 +1,7 @@
 #include <linalg/Matrix.hpp>
 #include <stdexcept>
+#include <ostream>
+#include <iomanip>
 
 namespace linalg {
 	Matrix::Matrix(std::size_t rows, std::size_t cols)
@@ -23,5 +25,28 @@ namespace linalg {
 		}
 		// Row-major indexing formula
 		return data_[i * cols_ + j];
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Matrix& A) {
+		
+		// Save original output stream formatting
+		std::streamsize oldPrecision = os.precision();
+		std::ios_base::fmtflags oldFlags = os.flags();
+
+
+		os << std::scientific << std::setprecision(3);
+
+		for (std::size_t i = 0; i < A.rows(); i++) {
+			for (std::size_t j = 0; j < A.cols(); j++) {
+				os << std::setw(12) << A(i, j) << " ";
+			}
+			os << "\n";
+		}
+
+		// Restore original output stream formatting
+		os.precision(oldPrecision);
+		os.flags(oldFlags);
+
+		return os;
 	}
 }

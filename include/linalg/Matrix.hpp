@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstddef>
+#include <iosfwd>
 
 namespace linalg {
 	class Matrix {
@@ -26,4 +27,6 @@ namespace linalg {
 
 		const double& operator()(std::size_t i, std::size_t j) const;
 	};
+
+	std::ostream& operator<<(std::ostream& os, const Matrix& A);
 }
