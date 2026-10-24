@@ -28,6 +28,12 @@ namespace linalg {
 		const double& operator()(std::size_t i, std::size_t j) const;
 
 		bool operator== (const Matrix& other) const = default;
+
+		Matrix& swapRows(const std::size_t row1, const std::size_t row2);
+
+		Matrix& scaleRow(const double scalar, const std::size_t row_number);
+
+		Matrix& combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow);
 	};
 
 	std::ostream& operator<<(std::ostream& os, const Matrix& A);
@@ -41,4 +47,6 @@ namespace linalg {
 	Matrix operator*(const Matrix& M, const double s);
 
 	Matrix transpose(const Matrix& M);
+
+	//std::optional<std::size_t> findFirstPivot()
 }

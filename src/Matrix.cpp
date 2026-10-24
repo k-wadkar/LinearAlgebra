@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <ostream>
 #include <iomanip>
+#include <utility>
+#include <algorithm>
 
 namespace linalg {
 	Matrix::Matrix(std::size_t rows, std::size_t cols)
@@ -110,5 +112,49 @@ namespace linalg {
 		}
 
 		return N;
+	}
+
+	Matrix& Matrix::swapRows(const std::size_t row1, const std::size_t row2) {
+		if (std::max(row1, row2) >= rows_) {
+			throw std::out_of_range("Attempting to access out-of-bounds matrix row.");
+		}
+		
+		for (std::size_t i = 0; i < cols_; i++) {
+			std::swap((*this)(row1, i), (*this)(row2, i));
+		}
+
+		return (*this);
+	}
+
+	Matrix& Matrix::scaleRow(const double scalar, const std::size_t row_number) {
+		if (row_number >= rows_) {
+			throw std::out_of_range("Attempting to access out-of-bounds matrix row.");
+		}
+
+		if (scalar == 0) {
+			throw std::invalid_argument("0 is not a valid scalar for row scaling.");
+		}
+
+		for (std::size_t i = 0; i < cols_; i++) {
+			(*this)(row_number, i) *= scalar;
+		}
+
+		return (*this);
+	}
+
+	Matrix& Matrix::combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow) {
+		if (std::max(sourceRow, targetRow) >= rows_) {
+			throw std::out_of_range("Attempting to access out-of-bounds matrix row.");
+		}
+
+		if (sourceRow == targetRow) {
+			throw std::invalid_argument("Source row cannot also be the target row in a row combination operation.");
+		}
+
+		for (std::size_t i = 0; i < cols_; i++) {
+			(*this)(targetRow, i) += scalar * (*this)(sourceRow, i);
+		}
+
+		return (*this);
 	}
 }
