@@ -33,4 +33,8 @@ namespace linalg {
 	Matrix operator+(const Matrix& A, const Matrix& B);
 
 	Matrix operator*(const Matrix& A, const Matrix& B);
+
+	Matrix operator*(const double s, const Matrix& M);
+
+	Matrix operator*(const Matrix& M, const double s);
 }

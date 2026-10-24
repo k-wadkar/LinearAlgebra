@@ -83,4 +83,20 @@ namespace linalg {
 
 		return C;
 	}
+
+	Matrix operator*(const double s, const Matrix& M) {
+		Matrix N(M.rows(), M.cols());
+
+		for (std::size_t i = 0; i < M.rows(); i++) {
+			for (std::size_t j = 0; j < M.cols(); j++) {
+				N(i, j) = s * M(i, j);
+			}
+		}
+
+		return N;
+	}
+
+	Matrix operator*(const Matrix& M, const double s) {
+		return s * M;
+	}
 }
