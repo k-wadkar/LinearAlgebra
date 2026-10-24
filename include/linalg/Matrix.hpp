@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstddef>
 #include <iosfwd>
+#include <optional>
 
 namespace linalg {
 	class Matrix {
@@ -13,6 +14,8 @@ namespace linalg {
 		std::size_t rows_;
 		std::size_t cols_;
 		std::vector<double> data_;
+
+		std::optional<std::size_t> findFirstPivot(const std::size_t selectedCol, const std::size_t startRow) const;
 
 	public:
 		// Constructor to initialize the matrix with given number of rows and columns
@@ -47,6 +50,4 @@ namespace linalg {
 	Matrix operator*(const Matrix& M, const double s);
 
 	Matrix transpose(const Matrix& M);
-
-	//std::optional<std::size_t> findFirstPivot()
 }

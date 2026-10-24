@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <utility>
 #include <algorithm>
+#include <iostream>
 
 namespace linalg {
 	Matrix::Matrix(std::size_t rows, std::size_t cols)
@@ -157,4 +158,20 @@ namespace linalg {
 
 		return (*this);
 	}
+
+	std::optional<std::size_t> Matrix::findFirstPivot(const std::size_t selectedCol, const std::size_t startRow) const {
+		// There's a reason I wrote startRow > rows_ rather than >=. Something to do with C++ convention.
+		if (selectedCol >= cols_ || startRow > rows_) {
+			throw std::out_of_range("Attempting to access out-of-bounds matrix column or row.");
+		}
+		
+		for (std::size_t i = startRow; i < rows_; i++) {
+			if ((*this)(i, selectedCol) != 0) {
+				return i;
+			}
+		}
+
+		return std::nullopt;
+	}
+
 }
