@@ -14,10 +14,14 @@ int main()
     A(1, 1) = 5;
     A(1, 2) = 6;
 
-    linalg::Matrix B(2, 2);
+    linalg::Matrix B(4, 4);
+
+    B(0, 0) = 3;
+    B(1, 1) = 3;
+    B(2, 2) = 3;
 
     try {
-        std::cout << A + B;
+        std::cout << A * B;
     }
     catch (const std::invalid_argument& e) {
         std::cout << "Error: " << e.what() << std::endl;

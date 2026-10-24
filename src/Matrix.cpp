@@ -65,4 +65,22 @@ namespace linalg {
 
 		return C;
 	}
+
+	Matrix operator*(const Matrix& A, const Matrix& B) {
+		if (A.cols() != B.rows()) {
+			throw std::invalid_argument("The provided matrices are not multiplicatively conformable.");
+		}
+
+		Matrix C(A.rows(), B.cols());
+
+		for (std::size_t i = 0; i < A.rows(); i++) {
+			for (std::size_t j = 0; j < B.cols(); j++) {
+				for (std::size_t k = 0; k < A.cols(); k++) {
+					C(i, j) += A(i, k) * B(k, j);
+				}
+			}
+		}
+
+		return C;
+	}
 }

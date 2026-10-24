@@ -31,4 +31,6 @@ namespace linalg {
 	std::ostream& operator<<(std::ostream& os, const Matrix& A);
 
 	Matrix operator+(const Matrix& A, const Matrix& B);
+
+	Matrix operator*(const Matrix& A, const Matrix& B);
 }
