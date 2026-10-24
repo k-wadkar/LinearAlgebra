@@ -37,4 +37,6 @@ namespace linalg {
 	Matrix operator*(const double s, const Matrix& M);
 
 	Matrix operator*(const Matrix& M, const double s);
+
+	Matrix transpose(const Matrix& M);
 }

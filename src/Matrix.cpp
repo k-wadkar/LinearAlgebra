@@ -99,4 +99,16 @@ namespace linalg {
 	Matrix operator*(const Matrix& M, const double s) {
 		return s * M;
 	}
+
+	Matrix transpose(const Matrix& M) {
+		Matrix N(M.cols(), M.rows());
+
+		for (std::size_t i = 0; i < M.rows(); i++) {
+			for (std::size_t j = 0; j < M.cols(); j++) {
+				N(j, i) = M(i, j);
+			}
+		}
+
+		return N;
+	}
 }

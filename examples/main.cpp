@@ -21,7 +21,7 @@ int main()
     B(2, 2) = 3;
 
     try {
-        std::cout << A * B;
+        std::cout << transpose(transpose(A));
     }
     catch (const std::invalid_argument& e) {
         std::cout << "Error: " << e.what() << std::endl;
