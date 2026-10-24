@@ -26,6 +26,8 @@ namespace linalg {
 		double& operator()(std::size_t i, std::size_t j);
 
 		const double& operator()(std::size_t i, std::size_t j) const;
+
+		bool operator== (const Matrix& other) const = default;
 	};
 
 	std::ostream& operator<<(std::ostream& os, const Matrix& A);
