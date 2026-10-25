@@ -10,6 +10,8 @@
 #include <linalg/Matrix.hpp>
 #include <iostream>
 
+// static gives this test helper internal linkage, so it is only visible in this source file.
+// It verifies elimination when each pivot is already in place.
 static bool testGaussianElimination() {
 	linalg::Matrix A(3, 3);
 
@@ -50,6 +52,7 @@ static bool testGaussianElimination() {
 	return true;
 }
 
+// Verifies that elimination swaps in a usable pivot row when the current one is zero.
 static bool testGaussianEliminationRowSwap(){
 	linalg::Matrix B(3, 3);
 
@@ -91,6 +94,7 @@ static bool testGaussianEliminationRowSwap(){
 
 }
 
+// Verifies pivot-column scanning and elimination for a non-square matrix.
 static bool testGaussianEliminationRectangular() {
 	linalg::Matrix C(3, 4);
 
@@ -141,11 +145,13 @@ static bool testGaussianEliminationRectangular() {
 int main() {
 	bool allPassed = true;
 	
+	// Keep running every test even if an earlier test fails.
 	allPassed = testGaussianElimination() && allPassed;
 
 	allPassed = testGaussianEliminationRowSwap() && allPassed;
 
 	allPassed = testGaussianEliminationRectangular() && allPassed;
 
+	// Return the conventional process status: zero means success, nonzero means failure.
 	return allPassed ? 0 : 1;
 }

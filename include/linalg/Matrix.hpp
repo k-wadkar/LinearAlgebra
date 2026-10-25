@@ -6,52 +6,68 @@
 #include <optional>
 
 namespace linalg {
+	// A dynamically sized matrix of double-precision values.
 	class Matrix {
 	private:
-		// Member variables to store the number of rows, columns, and the data of the matrix
-		// size_t is used for sizes and indices as it is an unsigned integer type
-		// The data is stored in a 1D vector, and the elements can be accessed using row-major order
+		// Dimensions and flat row-major storage; size_t matches container sizes and indices.
 		std::size_t rows_;
 		std::size_t cols_;
 		std::vector<double> data_;
 
+		// Returns the first nonzero row at or below startRow, or nullopt if none exists.
+		// optional distinguishes "no pivot found" from a valid row index without a sentinel.
+		// (A sentinel is a special value used to signal a condition, commonly the absence of a valid result.)
+		// Column and row indices use size_t to match the matrix dimensions.
 		std::optional<std::size_t> findFirstPivot(const std::size_t selectedCol, const std::size_t startRow) const;
 
+		// Uses the pivot row to zero the selected column in targetRow; modifies this matrix.
 		void eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);
 
 	public:
-		// Constructor to initialize the matrix with given number of rows and columns
+		// Creates a rows-by-cols matrix initialized with zeroes.
 		Matrix(std::size_t rows, std::size_t cols);
-		
-		// Member functions to get the number of rows and columns
+
+		// Return dimensions by value; the small integer values need no reference or copy avoidance.
 		std::size_t rows() const;
 		std::size_t cols() const;
 
-		// Overloaded operator() to access matrix elements in a 2D manner
+		// Mutable overload returns a reference so callers can assign to an element.
 		double& operator()(std::size_t i, std::size_t j);
 
+		// Const overload permits element reads from a const matrix without allowing modification.
 		const double& operator()(std::size_t i, std::size_t j) const;
 
+		// Compare with another matrix by const reference to avoid copying; defaulted equality
+		// checks dimensions and stored values member by member.
 		bool operator== (const Matrix& other) const = default;
 
+		// Row indices use size_t to match dimensions; operations return this matrix by reference
+		// so calls can be chained without copying the matrix.
 		Matrix& swapRows(const std::size_t row1, const std::size_t row2);
 
+		// The double scalar represents a numeric scale; row_number is a size_t row index.
 		Matrix& scaleRow(const double scalar, const std::size_t row_number);
 
+		// Add scalar times sourceRow to targetRow; double represents the factor and size_t the indices.
 		Matrix& combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow);
 
+		// Perform forward Gaussian elimination in place and return this matrix for chaining.
 		Matrix& toEchelonForm();
 	};
 
+	// Write a matrix to the supplied stream and return the stream to support chained output.
 	std::ostream& operator<<(std::ostream& os, const Matrix& A);
 
+	// Arithmetic operators take const references to avoid copying inputs and return new results.
 	Matrix operator+(const Matrix& A, const Matrix& B);
 
 	Matrix operator*(const Matrix& A, const Matrix& B);
 
+	// Both scalar-multiplication overloads support scalar * matrix and matrix * scalar syntax.
 	Matrix operator*(const double s, const Matrix& M);
 
 	Matrix operator*(const Matrix& M, const double s);
 
+	// Return a new matrix with rows and columns exchanged.
 	Matrix transpose(const Matrix& M);
 }
