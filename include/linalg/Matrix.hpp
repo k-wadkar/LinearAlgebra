@@ -37,6 +37,8 @@ namespace linalg {
 		Matrix& scaleRow(const double scalar, const std::size_t row_number);
 
 		Matrix& combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow);
+
+		Matrix& toEchelonForm();
 	};
 
 	std::ostream& operator<<(std::ostream& os, const Matrix& A);

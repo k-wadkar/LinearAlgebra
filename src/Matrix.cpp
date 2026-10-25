@@ -174,4 +174,23 @@ namespace linalg {
 		return std::nullopt;
 	}
 
+	Matrix& Matrix::toEchelonForm() {
+		std::size_t pivotRow = 0;
+		std::size_t selectedCol = 0;
+
+		while (pivotRow < rows_ && selectedCol < cols_) {
+			auto temp = (*this).findFirstPivot(selectedCol, pivotRow);
+			
+			if (temp.has_value()) {
+				(*this).swapRows(pivotRow, temp.value());
+				pivotRow++;
+			}
+			
+			selectedCol++;
+			
+		}
+
+		return (*this);
+	}
+
 }
