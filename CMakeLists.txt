@@ -13,6 +13,8 @@ endif()
 # Define the project
 project(LinearAlgebra LANGUAGES CXX)
 
+enable_testing()
+
 # Use C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -52,3 +54,8 @@ add_executable(test_matrix
 
 # Link the test program to our library
 target_link_libraries(test_matrix PRIVATE linalg)
+
+add_test(
+    NAME MatrixTests
+    COMMAND test_matrix
+)
