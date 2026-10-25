@@ -174,6 +174,29 @@ namespace linalg {
 		return std::nullopt;
 	}
 
+	//void Matrix::eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow) {
+	//	for (std::size_t i = pivotRow+1; i < rows_; i++) {
+	//		if ((*this)(i, pivotCol) != 0) { // Need to change this later to work with tolerance
+	//			auto scalar = -1 * (*this)(i, pivotCol) / (*this)(pivotRow, pivotCol);
+	//			(*this).combineRows(scalar, pivotRow, i);
+	//		}
+	//	}
+	//}
+
+	void Matrix::eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow) {
+		if ((*this)(pivotRow, pivotCol) == 0) {
+			throw std::invalid_argument("Attempted to eliminate entry using a zero pivot.");
+		}
+		
+		if ((*this)(targetRow, pivotCol) != 0) { // Need to change this later to work with tolerance
+			double scalar = -(*this)(targetRow, pivotCol) / (*this)(pivotRow, pivotCol);
+			(*this).combineRows(scalar, pivotRow, targetRow);
+		}
+		
+	}
+
+
+
 	Matrix& Matrix::toEchelonForm() {
 		std::size_t pivotRow = 0;
 		std::size_t selectedCol = 0;
@@ -182,8 +205,17 @@ namespace linalg {
 			auto temp = (*this).findFirstPivot(selectedCol, pivotRow);
 			
 			if (temp.has_value()) {
-				(*this).swapRows(pivotRow, temp.value());
+				if (pivotRow != temp.value()) { //If the first pivot is already in the pivot row, no need to swap rows
+					(*this).swapRows(pivotRow, temp.value());
+				}
+
+				// At this point need to eliminate down the column - use a helper function?
+				for (std::size_t i = pivotRow + 1; i < rows_; i++) {
+					(*this).eliminateEntry(pivotRow, selectedCol, i);
+				}
+
 				pivotRow++;
+
 			}
 			
 			selectedCol++;

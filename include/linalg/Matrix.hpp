@@ -17,6 +17,8 @@ namespace linalg {
 
 		std::optional<std::size_t> findFirstPivot(const std::size_t selectedCol, const std::size_t startRow) const;
 
+		void eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);
+
 	public:
 		// Constructor to initialize the matrix with given number of rows and columns
 		Matrix(std::size_t rows, std::size_t cols);
