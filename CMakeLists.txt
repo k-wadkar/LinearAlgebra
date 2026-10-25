@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(linalg STATIC
     src/Matrix.cpp
     include/linalg/Matrix.hpp
-)
+   )
 
 # Make the library's public headers available
 target_include_directories(linalg PUBLIC
@@ -41,3 +41,14 @@ add_executable(example
 
 # Link the example program to our library
 target_link_libraries(example PRIVATE linalg)
+
+# ==========================================
+# Test Executable
+# ==========================================
+
+add_executable(test_matrix
+    tests/test_matrix.cpp
+)
+
+# Link the test program to our library
+target_link_libraries(test_matrix PRIVATE linalg)
