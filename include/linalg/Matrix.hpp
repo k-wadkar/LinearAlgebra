@@ -18,7 +18,11 @@ namespace linalg {
 		// optional distinguishes "no pivot found" from a valid row index without a sentinel.
 		// (A sentinel is a special value used to signal a condition, commonly the absence of a valid result.)
 		// Column and row indices use size_t to match the matrix dimensions.
-		std::optional<std::size_t> findFirstPivot(const std::size_t selectedCol, const std::size_t startRow) const;
+		std::optional<std::size_t> findFirstPivot (const std::size_t selectedCol, const std::size_t startRow) const;
+
+		// Returns the row at or below startRow which contains the element with the greatest non-zero absolute value in selectedCol
+		// optional distinguished "no pivot found" from a valid row index without a sentinel
+		std::optional<std::size_t> findLargestPivot(const std::size_t selectedCol, const std::size_t startRow) const;
 
 		// Uses the pivot row to zero the selected column in targetRow; modifies this matrix.
 		void eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);

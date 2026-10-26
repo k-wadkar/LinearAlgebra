@@ -5,6 +5,7 @@
 #include <utility>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 namespace linalg {
 	// SECTION: Core matrix construction, dimensions, and element access.
@@ -99,7 +100,7 @@ namespace linalg {
 		return (*this);
 	}
 
-	// Pivot discovery and elimination helpers for echelon-form conversion.
+	// (Redundant) Pivot discovery and elimination helpers for echelon-form conversion.
 	std::optional<std::size_t> Matrix::findFirstPivot(const std::size_t selectedCol, const std::size_t startRow) const {
 		// startRow == rows_ is a valid empty search range; values beyond it are invalid.
 		if (selectedCol >= cols_ || startRow > rows_) {
@@ -115,6 +116,34 @@ namespace linalg {
 
 		// No suitable row exists in this column at or below startRow.
 		return std::nullopt;
+	}
+
+	// Swaps with the largest absolute value in the column rather than the first non-zero value.
+	// Also referred to as partial pivoting
+	std::optional<std::size_t> Matrix::findLargestPivot(const std::size_t selectedCol, const std::size_t startRow) const {
+		// Reject out-of-bound arguments
+		if (selectedCol >= cols_ || startRow > rows_) {
+			throw std::out_of_range("Attempting to access out-of-bounds matrix column or row.");
+		}
+
+		// Initialise the return value as there being no suitable pivot value - update when you find one
+		std::optional<std::size_t> largestSoFar = std::nullopt;
+
+		// Search only the unprocessed rows so earlier pivot positions remain undisturbed.
+		for (std::size_t i = startRow; i < rows_; i++) {
+			
+			double candidateMagnitude = std::abs((*this)(i, selectedCol));
+
+			// If the selected element is nonzero AND either we haven't found a pivot yet, or the pivots we have found have lower absolute values...
+			if ((*this)(i, selectedCol) != 0
+				&& (
+					!largestSoFar.has_value()
+					|| std::abs((*this)(largestSoFar.value(), selectedCol)) < candidateMagnitude)) {
+				largestSoFar = i;
+			}
+		}
+
+		return largestSoFar;
 	}
 
 	// Uses row combination to eliminate a specific entry (i.e. make it zero)
@@ -139,7 +168,7 @@ namespace linalg {
 		
 		// Advance through columns, skipping columns without a pivot and advancing rows only when one is found.
 		while (pivotRow < rows_ && selectedCol < cols_) {
-			auto temp = (*this).findFirstPivot(selectedCol, pivotRow);
+			auto temp = (*this).findLargestPivot(selectedCol, pivotRow);
 
 			// If there's a pivot in this column...
 			if (temp.has_value()) {

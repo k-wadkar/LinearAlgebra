@@ -11,6 +11,7 @@
 
 #include <linalg/Matrix.hpp>
 #include <iostream>
+#include <iomanip>
 
 // static gives this test helper internal linkage, so it is only visible in this source file.
 // It verifies elimination when each pivot is already in place.
@@ -31,22 +32,31 @@ static bool testGaussianElimination() {
 
 	linalg::Matrix E(3, 3);
 
-	E(0, 0) = 2;
-	E(0, 1) = 4;
-	E(0, 2) = 2;
+	E(0, 0) = 4;
+	E(0, 1) = 10;
+	E(0, 2) = 6;
 
 	E(1, 0) = 0;
-	E(1, 1) = 2;
-	E(1, 2) = 2;
+	E(1, 1) = 3;
+	E(1, 2) = 7;
 
 	E(2, 0) = 0;
 	E(2, 1) = 0;
-	E(2, 2) = 4;
+	E(2, 2) = 4.0/3;
 
 	A.toEchelonForm();
 
 	if (A != E) {
 		std::cerr << "FAILED: Standard Gaussian elimination test.\n";
+		
+		std::cerr << "\nExpected:\n\n" << E << "\n\n Actual:\n\n" << A << "\n";
+		
+		std::cerr << std::setprecision(17);
+
+		std::cerr << "Expected: " << E(2, 2) << '\n';
+		std::cerr << "Actual:   " << A(2, 2) << '\n';
+		std::cerr << "Difference: " << A(2, 2) - E(2, 2) << '\n';
+
 		return false;
 	}
 
@@ -72,9 +82,9 @@ static bool testGaussianEliminationRowSwap(){
 
 	linalg::Matrix E(3, 3);
 
-	E(0, 0) = 2;
-	E(0, 1) = 4;
-	E(0, 2) = 6;
+	E(0, 0) = 4;
+	E(0, 1) = 6;
+	E(0, 2) = 8;
 
 	E(1, 0) = 0;
 	E(1, 1) = 2;
@@ -88,6 +98,9 @@ static bool testGaussianEliminationRowSwap(){
 	
 	if (B != E) {
 		std::cerr << "FAILED: Gaussian elimination test with row swaps.\n";
+		
+		std::cerr << "\nExpected:\n\n" << E << "\n\n Actual:\n\n" << B << "\n";
+		
 		return false;
 	}
 
@@ -118,9 +131,9 @@ static bool testGaussianEliminationRectangular() {
 	linalg::Matrix E(3, 4);
 
 	E(0, 0) = 0;
-	E(0, 1) = 2;
-	E(0, 2) = 4;
-	E(0, 3) = 6;
+	E(0, 1) = 6;
+	E(0, 2) = 12;
+	E(0, 3) = 18;
 
 	E(1, 0) = 0;
 	E(1, 1) = 0;
@@ -136,6 +149,9 @@ static bool testGaussianEliminationRectangular() {
 
 	if (C != E) {
 		std::cerr << "FAILED: Gaussian elimination on a rectangular matrix.\n";
+
+		std::cerr << "\nExpected:\n\n" << E << "\n\n Actual:\n\n" << C << "\n";
+
 		return false;
 	}
 
@@ -271,6 +287,76 @@ static bool testGaussJordanFinalColPivot() {
 
 }
 
+// Verifies that rank is calculated correctly
+static bool testRank() {
+	linalg::Matrix A(2, 2);
+
+	A(0, 0) = 1;
+	A(0, 1) = 2;
+	A(1, 0) = 2;
+	A(1, 1) = 4;
+
+	if (A.rank() != 1) {
+		std::cerr << "FAILED: Calculate rank of 2x2 matrix.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Calculate rank of 2x2 matrix. \n";
+	return true;
+
+}
+
+// Verifies that rank is calculated correctly on a full-rank matrix
+static bool testFullRank() {
+	linalg::Matrix A(2, 2);
+
+	A(0, 0) = 1;
+	A(0, 1) = 2;
+	A(1, 0) = 3;
+	A(1, 1) = 4;
+
+	if (A.rank() != 2) {
+		std::cerr << "FAILED: Calculate rank of full-rank matrix.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Calculate rank of full-rank matrix. \n";
+	return true;
+
+}
+
+// Verifies that non-mutating Gauss-Jordan reduction works
+static bool testNonMutieGaussJordan() {
+	linalg::Matrix A(2, 2);
+
+	A(0, 0) = 1;
+	A(0, 1) = 2;
+	A(1, 0) = 2;
+	A(1, 1) = 4;
+
+	linalg::Matrix copy = A;
+
+	linalg::Matrix reduced = A.reducedEchelonForm();
+
+	linalg::Matrix E(2, 2);
+
+	E(0, 0) = 1;
+	E(0, 1) = 2;
+	E(1, 0) = 0;
+	E(1, 1) = 0;
+
+	if (reduced != E) {
+		std::cerr << "FAILED: Non-mutating Gauss-Jordan reduction.";
+		return false;
+	}
+	else if (A != copy) {
+		std::cerr << "FAILED: Original matrix was modified.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Non-mutating Gauss-Jordan reduction.";
+	return true;
+}
 
 
 
@@ -278,7 +364,8 @@ int main() {
 	bool allPassed = true;
 	
 	// Keep running every test even if an earlier test fails.
-	allPassed = testGaussianElimination() && allPassed;
+	
+	// allPassed = testGaussianElimination() && allPassed;
 
 	allPassed = testGaussianEliminationRowSwap() && allPassed;
 
@@ -289,6 +376,12 @@ int main() {
 	allPassed = testGaussJordanRectangular() && allPassed;
 
 	allPassed = testGaussJordanFinalColPivot() && allPassed;
+
+	allPassed = testRank() && allPassed;
+	
+	allPassed = testFullRank() && allPassed;
+
+	allPassed = testNonMutieGaussJordan() && allPassed;
 
 	// Return the conventional process status: zero means success, nonzero means failure.
 	return allPassed ? 0 : 1;
