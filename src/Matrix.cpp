@@ -156,6 +156,7 @@ namespace linalg {
 		if ((*this)(targetRow, pivotCol) != 0) { // Need to change this later to work with tolerance
 			double scalar = -(*this)(targetRow, pivotCol) / (*this)(pivotRow, pivotCol);
 			(*this).combineRows(scalar, pivotRow, targetRow);
+			(*this)(targetRow, pivotCol) = 0.0;
 		}
 	}
 
