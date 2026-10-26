@@ -34,6 +34,8 @@ namespace linalg {
 		std::size_t rows() const;
 		std::size_t cols() const;
 
+		std::size_t rank() const;
+
 		// Mutable overload returns a reference so callers can assign to an element.
 		double& operator()(std::size_t i, std::size_t j);
 
@@ -54,11 +56,18 @@ namespace linalg {
 		// Add scalar times sourceRow to targetRow; double represents the factor and size_t the indices.
 		Matrix& combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow);
 
-		// Calls gaussianElimination to perform forward Gaussian elimination in place, and return the matrix for chaining.
+		// (Mutating) Calls gaussianElimination to perform forward Gaussian elimination in place, and return the matrix for chaining.
 		Matrix& toEchelonForm();
 
-		//  Calls gaussianElimination to get pivot locations, and performs backwards elimination to matrix in RREF
+		// (Non-mutating) Calls toEchelonForm on a copy of the calling object Matrix and returns the copy by value
+		Matrix echelonForm() const;
+
+
+		// (Mutating) Calls gaussianElimination to get pivot locations, and performs backwards elimination to matrix in RREF
 		Matrix& toReducedEchelonForm();
+
+		// (Non-mutating) Calls toReducedEchelonForm on a copy of the calling object and returns the copy by value
+		Matrix reducedEchelonForm() const;
 	};
 
 	// Write a matrix to the supplied stream and return the stream to support chained output.

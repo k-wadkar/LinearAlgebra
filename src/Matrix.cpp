@@ -19,6 +19,16 @@ namespace linalg {
 	// Public member function exposing number of rows (read-only)
 	std::size_t Matrix::cols() const { return cols_; }
 
+	// Returns the rank of the matrix by performing gaussian elimination on a copy of the receiver
+	std::size_t Matrix::rank() const {
+		Matrix receiverCopy = (*this);
+
+		// Uses the private member function gaussianElimination on the matrix copy
+		// gaussianElimination returns a vector containing the pivot column numbers
+		// The number of pivots is equal to the rank, so the size of the vector is the rank
+		return receiverCopy.gaussianElimination().size();
+	}
+
 	// The non-const overload returns a writable reference to the stored element.
 	double& Matrix::operator()(std::size_t i, std::size_t j) {
 		if (i >= rows_ || j >= cols_) {
@@ -163,6 +173,15 @@ namespace linalg {
 		return (*this);
 	}
 
+	// Copies the matrix and performs Gaussian reduction on the copy, then returns it
+	Matrix Matrix::echelonForm() const {
+		Matrix receiverCopy = (*this);
+
+		receiverCopy.toEchelonForm();
+
+		return receiverCopy;
+	}
+
 	// In-place Matrix conversion to RREF.
 	Matrix& Matrix::toReducedEchelonForm() {
 		std::vector<std::size_t> pivotCols = (*this).gaussianElimination();
@@ -182,6 +201,15 @@ namespace linalg {
 		}
 
 		return (*this);
+	}
+
+	// Copies the matrix and performs Gauss-Jordan reduction on the copy, then returns it
+	Matrix Matrix::reducedEchelonForm() const {
+		Matrix receiverCopy = (*this);
+
+		receiverCopy.toReducedEchelonForm();
+
+		return receiverCopy;
 	}
 
 
