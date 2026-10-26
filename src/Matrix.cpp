@@ -7,12 +7,16 @@
 #include <iostream>
 
 namespace linalg {
-	// Core matrix construction, dimensions, and element access.
+	// SECTION: Core matrix construction, dimensions, and element access.
+	
+	// Matrix constructor definition
 	Matrix::Matrix(std::size_t rows, std::size_t cols)
 		: rows_(rows), cols_(cols), data_(rows * cols, 0.0) {}
 
+	// Public member function exposing number of rows (read-only)
 	std::size_t Matrix::rows() const { return rows_; }
 
+	// Public member function exposing number of rows (read-only)
 	std::size_t Matrix::cols() const { return cols_; }
 
 	// The non-const overload returns a writable reference to the stored element.
@@ -32,7 +36,12 @@ namespace linalg {
 		return data_[i * cols_ + j];
 	}
 
-	// Elementary row operations used by Gaussian elimination.
+
+
+
+
+	// SECTION: Elementary row operations used by Gaussian elimination.
+	
 	Matrix& Matrix::swapRows(const std::size_t row1, const std::size_t row2) {
 		if (std::max(row1, row2) >= rows_) {
 			throw std::out_of_range("Attempting to access out-of-bounds matrix row.");
@@ -98,16 +107,8 @@ namespace linalg {
 		return std::nullopt;
 	}
 
-	// Retained earlier implementation for reference; the active version below handles one target row.
-	//void Matrix::eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow) {
-	//	for (std::size_t i = pivotRow+1; i < rows_; i++) {
-	//		if ((*this)(i, pivotCol) != 0) { // Need to change this later to work with tolerance
-	//			auto scalar = -1 * (*this)(i, pivotCol) / (*this)(pivotRow, pivotCol);
-	//			(*this).combineRows(scalar, pivotRow, i);
-	//		}
-	//	}
-	//}
-
+	// Uses row combination to eliminate a specific entry (i.e. make it zero)
+	// Numerically naive, so may actually produce a tiny value rather than exactly zero
 	void Matrix::eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow) {
 		if ((*this)(pivotRow, pivotCol) == 0) {
 			throw std::invalid_argument("Attempted to eliminate entry using a zero pivot.");
@@ -119,6 +120,7 @@ namespace linalg {
 		}
 	}
 
+	// In-place Matrix conversion to Echelon Form.
 	Matrix& Matrix::toEchelonForm() {
 		std::size_t pivotRow = 0;
 		std::size_t selectedCol = 0;
@@ -149,7 +151,11 @@ namespace linalg {
 		return (*this);
 	}
 
-	// Arithmetic and non-mutating matrix transformations.
+
+
+
+
+	// SECTION: Arithmetic and non-mutating matrix transformations.
 	Matrix operator+(const Matrix& A, const Matrix& B) {
 		if (A.rows() != B.rows() || A.cols() != B.cols()) {
 			throw std::invalid_argument("Matrix dimensions don't match.");
@@ -167,6 +173,11 @@ namespace linalg {
 		return C;
 	}
 
+	/* Three overloads for operator*:
+		- One for matrix-matrix multiplication
+		- One for scalar-matrix multiplication
+		- One for matrix-scalar multiplication
+	 The order of arguments matters, so we need to account for both scalar multiplication orders. */
 	Matrix operator*(const Matrix& A, const Matrix& B) {
 		if (A.cols() != B.rows()) {
 			throw std::invalid_argument("The provided matrices are not multiplicatively conformable.");
@@ -204,6 +215,7 @@ namespace linalg {
 		return s * M;
 	}
 
+	// This is a free function so returns a value rather than modifying the input matrix in-place
 	Matrix transpose(const Matrix& M) {
 		Matrix N(M.cols(), M.rows());
 
@@ -216,6 +228,12 @@ namespace linalg {
 
 		return N;
 	}
+
+	
+	
+	
+	
+	// SECTION: Output
 
 	// Stream output uses a fixed display format but restores the caller's stream state afterward.
 	std::ostream& operator<<(std::ostream& os, const Matrix& A) {

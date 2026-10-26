@@ -23,6 +23,9 @@ namespace linalg {
 		// Uses the pivot row to zero the selected column in targetRow; modifies this matrix.
 		void eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);
 
+		// Performs Gaussian elimination and returns the pivot column numbers in a vector
+		std::vector<std::size_t> gaussianElimination();
+
 	public:
 		// Creates a rows-by-cols matrix initialized with zeroes.
 		Matrix(std::size_t rows, std::size_t cols);
