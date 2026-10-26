@@ -1,3 +1,5 @@
+// For testing, use the x64 Developer Command Prompt with working directory LinearAlgebra
+
 // For debug testing, run: 
 // cmake --build out/build/x64-debug --target test_matrix
 // ctest --test-dir out/build/x64-debug -V

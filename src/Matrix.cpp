@@ -120,16 +120,21 @@ namespace linalg {
 		}
 	}
 
-	// In-place Matrix conversion to Echelon Form.
-	Matrix& Matrix::toEchelonForm() {
+	// (Private) In-place Matrix conversion to Echelon form.
+	// Returns a vector containing pivot column numbers
+	std::vector<std::size_t> Matrix::gaussianElimination() {
+		std::vector<std::size_t> pivotCols;
 		std::size_t pivotRow = 0;
 		std::size_t selectedCol = 0;
-
+		
 		// Advance through columns, skipping columns without a pivot and advancing rows only when one is found.
 		while (pivotRow < rows_ && selectedCol < cols_) {
 			auto temp = (*this).findFirstPivot(selectedCol, pivotRow);
-			
+
+			// If there's a pivot in this column...
 			if (temp.has_value()) {
+				pivotCols.push_back(selectedCol);
+				
 				// Keep the current row when possible; otherwise bring the discovered pivot into position.
 				if (pivotRow != temp.value()) {
 					(*this).swapRows(pivotRow, temp.value());
@@ -143,10 +148,18 @@ namespace linalg {
 				pivotRow++;
 
 			}
-			
+
 			selectedCol++;
-			
+
 		}
+
+		return pivotCols;
+	}
+
+
+	// In-place Matrix conversion to Echelon Form.
+	Matrix& Matrix::toEchelonForm() {
+		(*this).gaussianElimination();
 
 		return (*this);
 	}
