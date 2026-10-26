@@ -358,6 +358,72 @@ static bool testNonMutieGaussJordan() {
 	return true;
 }
 
+// Verifies matrix arithmetic operators and confirms non-mutating operators preserve their inputs.
+static bool testMatrixArithmetic() {
+	linalg::Matrix A(2, 2);
+	A(0, 0) = 1;
+	A(0, 1) = 2;
+	A(1, 0) = 3;
+	A(1, 1) = 4;
+
+	linalg::Matrix B(2, 2);
+	B(0, 0) = 5;
+	B(0, 1) = 6;
+	B(1, 0) = 7;
+	B(1, 1) = 8;
+
+	linalg::Matrix sum(2, 2);
+	sum(0, 0) = 6;
+	sum(0, 1) = 8;
+	sum(1, 0) = 10;
+	sum(1, 1) = 12;
+
+	linalg::Matrix difference(2, 2);
+	difference(0, 0) = -4;
+	difference(0, 1) = -4;
+	difference(1, 0) = -4;
+	difference(1, 1) = -4;
+
+	linalg::Matrix negativeA(2, 2);
+	negativeA(0, 0) = -1;
+	negativeA(0, 1) = -2;
+	negativeA(1, 0) = -3;
+	negativeA(1, 1) = -4;
+
+	linalg::Matrix product(2, 2);
+	product(0, 0) = 19;
+	product(0, 1) = 22;
+	product(1, 0) = 43;
+	product(1, 1) = 50;
+
+	if (A + B != sum || A - B != difference || -A != negativeA || A == B) {
+		std::cerr << "FAILED: Non-mutating matrix arithmetic or exact inequality.\n";
+		return false;
+	}
+
+	linalg::Matrix compound = A;
+	compound += B;
+	if (compound != sum) {
+		std::cerr << "FAILED: Compound matrix addition.\n";
+		return false;
+	}
+
+	compound -= B;
+	if (compound != A) {
+		std::cerr << "FAILED: Compound matrix subtraction.\n";
+		return false;
+	}
+
+	compound *= B;
+	if (compound != product || A(0, 0) != 1) {
+		std::cerr << "FAILED: Compound matrix multiplication or input preservation.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Matrix arithmetic operators.\n";
+	return true;
+}
+
 
 
 int main() {
@@ -382,6 +448,8 @@ int main() {
 	allPassed = testFullRank() && allPassed;
 
 	allPassed = testNonMutieGaussJordan() && allPassed;
+
+	allPassed = testMatrixArithmetic() && allPassed;
 
 	// Return the conventional process status: zero means success, nonzero means failure.
 	return allPassed ? 0 : 1;

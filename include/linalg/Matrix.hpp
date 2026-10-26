@@ -50,6 +50,11 @@ namespace linalg {
 		// checks dimensions and stored values member by member.
 		bool operator== (const Matrix& other) const = default;
 
+		// Compound arithmetic modifies this matrix and returns it for chaining.
+		Matrix& operator+=(const Matrix& other);
+		Matrix& operator-=(const Matrix& other);
+		Matrix& operator*=(const Matrix& other);
+
 		// Row indices use size_t to match dimensions; operations return this matrix by reference
 		// so calls can be chained without copying the matrix.
 		Matrix& swapRows(const std::size_t row1, const std::size_t row2);
@@ -79,6 +84,8 @@ namespace linalg {
 
 	// Arithmetic operators take const references to avoid copying inputs and return new results.
 	Matrix operator+(const Matrix& A, const Matrix& B);
+	Matrix operator-(const Matrix& A, const Matrix& B);
+	Matrix operator-(const Matrix& M);
 
 	Matrix operator*(const Matrix& A, const Matrix& B);
 

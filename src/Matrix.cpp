@@ -246,21 +246,53 @@ namespace linalg {
 
 
 	// SECTION: Arithmetic and non-mutating matrix transformations.
-	Matrix operator+(const Matrix& A, const Matrix& B) {
-		if (A.rows() != B.rows() || A.cols() != B.cols()) {
+	Matrix& Matrix::operator+=(const Matrix& other) {
+		if (rows() != other.rows() || cols() != other.cols()) {
 			throw std::invalid_argument("Matrix dimensions don't match.");
 		}
 
-		Matrix C(A.rows(), A.cols());
-
-		// Each output entry is the sum of the entries at the same position.
-		for (std::size_t i = 0; i < A.rows(); i++) {
-			for (std::size_t j = 0; j < A.cols(); j++) {
-				C(i, j) = A(i, j) + B(i, j);
+		for (std::size_t i = 0; i < rows(); i++) {
+			for (std::size_t j = 0; j < cols(); j++) {
+				(*this)(i, j) += other(i, j);
 			}
 		}
 
+		return *this;
+	}
+
+	Matrix& Matrix::operator-=(const Matrix& other) {
+		if (rows() != other.rows() || cols() != other.cols()) {
+			throw std::invalid_argument("Matrix dimensions don't match.");
+		}
+
+		for (std::size_t i = 0; i < rows(); i++) {
+			for (std::size_t j = 0; j < cols(); j++) {
+				(*this)(i, j) -= other(i, j);
+			}
+		}
+
+		return *this;
+	}
+
+	Matrix& Matrix::operator*=(const Matrix& other) {
+		*this = *this * other;
+		return *this;
+	}
+
+	Matrix operator+(const Matrix& A, const Matrix& B) {
+		Matrix C = A;
+		C += B;
 		return C;
+	}
+
+	Matrix operator-(const Matrix& A, const Matrix& B) {
+		Matrix C = A;
+		C -= B;
+		return C;
+	}
+
+	Matrix operator-(const Matrix& M) {
+		return -1.0 * M;
 	}
 
 	/* Three overloads for operator*:
