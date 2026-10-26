@@ -12,6 +12,8 @@
 #include <linalg/Matrix.hpp>
 #include <iostream>
 #include <iomanip>
+#include <limits>
+#include <stdexcept>
 
 // static gives this test helper internal linkage, so it is only visible in this source file.
 // It verifies elimination when each pivot is already in place.
@@ -424,6 +426,154 @@ static bool testMatrixArithmetic() {
 	return true;
 }
 
+// Checks approximate comparison for ordinary-sized values and incompatible dimensions.
+static bool testIsApproxOrdinaryValues() {
+	linalg::Matrix ordinaryA(1, 2);
+	linalg::Matrix ordinaryB(1, 2);
+	ordinaryA(0, 0) = 1.0;
+	ordinaryA(0, 1) = -2.0;
+	ordinaryB(0, 0) = 1.0005;
+	ordinaryB(0, 1) = -2.001;
+	if (!ordinaryA.isApprox(ordinaryB, 0.001, 0.0)
+		|| ordinaryA.isApprox(ordinaryB, 0.0001, 0.0)
+		|| ordinaryA.isApprox(ordinaryB)) {
+		std::cerr << "FAILED: isApprox ordinary-value tolerance comparisons.\n";
+		return false;
+	}
+
+	linalg::Matrix differentShape(2, 1);
+	if (ordinaryA.isApprox(differentShape)) {
+		std::cerr << "FAILED: isApprox accepted matrices with different dimensions.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: isApprox ordinary values and dimension mismatch.\n";
+	return true;
+}
+
+// Checks that the absolute tolerance governs comparisons around zero.
+static bool testIsApproxNearZero() {
+	linalg::Matrix nearZeroA(1, 1);
+	linalg::Matrix nearZeroB(1, 1);
+	nearZeroA(0, 0) = 0.0;
+	nearZeroB(0, 0) = 5e-13;
+	if (!nearZeroA.isApprox(nearZeroB, 1e-12, 0.0)
+		|| nearZeroA.isApprox(nearZeroB, 1e-13, 0.0)) {
+		std::cerr << "FAILED: isApprox near-zero absolute tolerance comparisons.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: isApprox near-zero comparisons.\n";
+	return true;
+}
+
+// Checks relative tolerance at a large scale, where absolute error alone is misleading.
+static bool testIsApproxLargeValues() {
+	linalg::Matrix largeA(1, 1);
+	linalg::Matrix largeB(1, 1);
+	largeA(0, 0) = 1e12;
+	largeB(0, 0) = 1e12 + 500.0;
+	if (!largeA.isApprox(largeB, 0.0, 1e-9)) {
+		std::cerr << "FAILED: isApprox did not accept large values within relative tolerance.\n";
+		return false;
+	}
+
+	largeB(0, 0) = 1e12 + 2000.0;
+	if (largeA.isApprox(largeB, 0.0, 1e-9)) {
+		std::cerr << "FAILED: isApprox accepted large values outside relative tolerance.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: isApprox large-value relative tolerance comparisons.\n";
+	return true;
+}
+
+// Checks NaN rejection and matching/mismatched infinity handling.
+static bool testIsApproxNonFiniteValues() {
+	const double nan = std::numeric_limits<double>::quiet_NaN();
+	const double infinity = std::numeric_limits<double>::infinity();
+	linalg::Matrix nonFiniteA(1, 1);
+	linalg::Matrix nonFiniteB(1, 1);
+	nonFiniteA(0, 0) = nan;
+	nonFiniteB(0, 0) = nan;
+	if (nonFiniteA.isApprox(nonFiniteB)) {
+		std::cerr << "FAILED: isApprox accepted NaN compared with NaN.\n";
+		return false;
+	}
+
+	nonFiniteB(0, 0) = 1.0;
+	if (nonFiniteA.isApprox(nonFiniteB)) {
+		std::cerr << "FAILED: isApprox accepted NaN compared with a finite value.\n";
+		return false;
+	}
+
+	nonFiniteA(0, 0) = infinity;
+	nonFiniteB(0, 0) = infinity;
+	if (!nonFiniteA.isApprox(nonFiniteB)) {
+		std::cerr << "FAILED: isApprox rejected matching positive infinities.\n";
+		return false;
+	}
+
+	nonFiniteB(0, 0) = -infinity;
+	if (nonFiniteA.isApprox(nonFiniteB)) {
+		std::cerr << "FAILED: isApprox accepted infinities with opposite signs.\n";
+		return false;
+	}
+
+	nonFiniteB(0, 0) = 1.0;
+	if (nonFiniteA.isApprox(nonFiniteB)) {
+		std::cerr << "FAILED: isApprox accepted infinity compared with a finite value.\n";
+		return false;
+	}
+
+	nonFiniteA(0, 0) = -infinity;
+	nonFiniteB(0, 0) = -infinity;
+	if (!nonFiniteA.isApprox(nonFiniteB, 1e-12, 1e-9)) {
+		std::cerr << "FAILED: isApprox rejected matching negative infinities.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: isApprox NaN and infinity comparisons.\n";
+	return true;
+}
+
+// Checks that invalid tolerance values are reported with invalid_argument.
+static bool testIsApproxInvalidTolerances() {
+	const double nan = std::numeric_limits<double>::quiet_NaN();
+	const double infinity = std::numeric_limits<double>::infinity();
+	linalg::Matrix finiteA(1, 1);
+	linalg::Matrix finiteB(1, 1);
+	finiteA(0, 0) = 1.0;
+	finiteB(0, 0) = 1.0;
+	if (!finiteA.isApprox(finiteB, 0.0, 0.0)) {
+		std::cerr << "FAILED: isApprox rejected equal values with zero tolerances.\n";
+		return false;
+	}
+
+	auto throwsInvalidTolerance = [&finiteA, &finiteB](double absTol, double relTol) {
+		try {
+			finiteA.isApprox(finiteB, absTol, relTol);
+		}
+		catch (const std::invalid_argument&) {
+			return true;
+		}
+		return false;
+	};
+
+	if (!throwsInvalidTolerance(-1.0, 0.0)
+		|| !throwsInvalidTolerance(0.0, -1.0)
+		|| !throwsInvalidTolerance(nan, 0.0)
+		|| !throwsInvalidTolerance(0.0, nan)
+		|| !throwsInvalidTolerance(infinity, 0.0)
+		|| !throwsInvalidTolerance(0.0, infinity)) {
+		std::cerr << "FAILED: isApprox did not throw for an invalid tolerance.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: isApprox invalid tolerance handling.\n";
+	return true;
+}
+
 
 
 int main() {
@@ -450,6 +600,16 @@ int main() {
 	allPassed = testNonMutieGaussJordan() && allPassed;
 
 	allPassed = testMatrixArithmetic() && allPassed;
+
+	allPassed = testIsApproxOrdinaryValues() && allPassed;
+
+	allPassed = testIsApproxNearZero() && allPassed;
+
+	allPassed = testIsApproxLargeValues() && allPassed;
+
+	allPassed = testIsApproxNonFiniteValues() && allPassed;
+
+	allPassed = testIsApproxInvalidTolerances() && allPassed;
 
 	// Return the conventional process status: zero means success, nonzero means failure.
 	return allPassed ? 0 : 1;
