@@ -50,6 +50,10 @@ namespace linalg {
 		// checks dimensions and stored values member by member.
 		bool operator== (const Matrix& other) const = default;
 
+
+		bool isApprox(const Matrix& other, double absTol = 1e-12, double relTol = 1e-9) const;
+
+
 		// Compound arithmetic modifies this matrix and returns it for chaining.
 		Matrix& operator+=(const Matrix& other);
 		Matrix& operator-=(const Matrix& other);

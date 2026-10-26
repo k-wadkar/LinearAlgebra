@@ -279,6 +279,49 @@ namespace linalg {
 		return *this;
 	}
 
+	bool Matrix::isApprox(const Matrix& other, double absTol, double relTol) const {
+		if (!std::isfinite(absTol)
+			|| !std::isfinite(relTol)
+			|| std::min(absTol, relTol) < 0) {
+			throw std::invalid_argument("Tolerance values must be non-negative.");
+		}
+		
+		// If the two matrices have different dimensions, they cannot be approximately equivalent
+		if ((*this).rows() != other.rows() || (*this).cols() != other.cols()) {
+			return false;
+		}
+
+		for (std::size_t r = 0; r < (*this).rows(); r++) {
+			for (std::size_t c = 0; c < (*this).cols(); c++) {
+				double a = (*this)(r, c);
+				double b = other(r, c);
+				
+				// If the two values are exactly equal, skip all further comparisons and move on
+				// (includes consideration of infinite values)
+				if (a == b) {
+					continue;
+				}
+				// If we are considering this, then the values were not equal
+				// In that case, if either value is infinite, we must reject it immediately
+				if (!std::isfinite(a) || !std::isfinite(b)) {
+					return false;
+				}
+				
+				double absDiff = std::abs(a - b);
+
+				double permittedDiff = absTol + relTol * std::max(std::abs(a), std::abs(b));
+
+				// Normal tolerance formula
+				// |a - b| <= eps_abs + eps_rel * max(|a|,|b|)
+				if (!(absDiff <= permittedDiff)) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 	Matrix operator+(const Matrix& A, const Matrix& B) {
 		Matrix C = A;
 		C += B;
