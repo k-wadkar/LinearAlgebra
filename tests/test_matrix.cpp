@@ -143,6 +143,136 @@ static bool testGaussianEliminationRectangular() {
 	return true;
 }
 
+// Verifies that basic Gauss-Jordan reduction works
+static bool testGaussJordan() {
+	linalg::Matrix B(3, 3);
+
+	B(0, 0) = 0;
+	B(0, 1) = 2;
+	B(0, 2) = 4;
+
+	B(1, 0) = 2;
+	B(1, 1) = 4;
+	B(1, 2) = 6;
+
+	B(2, 0) = 4;
+	B(2, 1) = 6;
+	B(2, 2) = 8;
+
+	linalg::Matrix E(3, 3);
+
+	E(0, 0) = 1;
+	E(0, 1) = 0;
+	E(0, 2) = -1;
+
+	E(1, 0) = 0;
+	E(1, 1) = 1;
+	E(1, 2) = 2;
+
+	E(2, 0) = 0;
+	E(2, 1) = 0;
+	E(2, 2) = 0;
+
+	B.toReducedEchelonForm();
+
+	if (B != E) {
+		std::cerr << "FAILED: Gauss-Jordan reduction.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Gauss-Jordan reduction.\n";
+	return true;
+
+}
+
+// Verifies that Gauss-Jordan reduction works on a rectangular matrix
+static bool testGaussJordanRectangular() {
+	linalg::Matrix B(3, 4);
+
+	B(0, 0) = 0;
+	B(0, 1) = 2;
+	B(0, 2) = 4;
+	B(0, 3) = 6;
+
+	B(1, 0) = 0;
+	B(1, 1) = 4;
+	B(1, 2) = 10;
+	B(1, 3) = 14;
+
+	B(2, 0) = 0;
+	B(2, 1) = 6;
+	B(2, 2) = 12;
+	B(2, 3) = 18;
+
+	linalg::Matrix E(3, 4);
+
+	E(0, 0) = 0;
+	E(0, 1) = 1;
+	E(0, 2) = 0;
+	E(0, 3) = 1;
+
+	E(1, 0) = 0;
+	E(1, 1) = 0;
+	E(1, 2) = 1;
+	E(1, 3) = 1;
+
+	E(2, 0) = 0;
+	E(2, 1) = 0;
+	E(2, 2) = 0;
+	E(2, 3) = 0;
+
+	B.toReducedEchelonForm();
+
+	if (B != E) {
+		std::cerr << "FAILED: Gauss-Jordan reduction on a rectangular matrix.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Gauss-Jordan reduction on a rectangular matrix.\n";
+	return true;
+
+}
+
+// Verifies that Gauss-Jordan reduction works on a matrix where there is a pivot in the final column
+static bool testGaussJordanFinalColPivot() {
+	linalg::Matrix B(2, 4);
+
+	B(0, 0) = 0;
+	B(0, 1) = 0;
+	B(0, 2) = 2;
+	B(0, 3) = 4;
+
+	B(1, 0) = 0;
+	B(1, 1) = 0;
+	B(1, 2) = 0;
+	B(1, 3) = 3;
+
+	linalg::Matrix E(2, 4);
+
+	E(0, 0) = 0;
+	E(0, 1) = 0;
+	E(0, 2) = 1;
+	E(0, 3) = 0;
+
+	E(1, 0) = 0;
+	E(1, 1) = 0;
+	E(1, 2) = 0;
+	E(1, 3) = 1;
+
+	B.toReducedEchelonForm();
+
+	if (B != E) {
+		std::cerr << "FAILED: Gauss-Jordan reduction on a rectangular matrix with a pivot in the final column.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Gauss-Jordan reduction on a rectangular matrix with a pivot in the final column.\n";
+	return true;
+
+}
+
+
+
 
 int main() {
 	bool allPassed = true;
@@ -153,6 +283,12 @@ int main() {
 	allPassed = testGaussianEliminationRowSwap() && allPassed;
 
 	allPassed = testGaussianEliminationRectangular() && allPassed;
+
+	allPassed = testGaussJordan() && allPassed;
+
+	allPassed = testGaussJordanRectangular() && allPassed;
+
+	allPassed = testGaussJordanFinalColPivot() && allPassed;
 
 	// Return the conventional process status: zero means success, nonzero means failure.
 	return allPassed ? 0 : 1;

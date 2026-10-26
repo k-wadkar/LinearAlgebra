@@ -156,10 +156,30 @@ namespace linalg {
 		return pivotCols;
 	}
 
-
 	// In-place Matrix conversion to Echelon Form.
 	Matrix& Matrix::toEchelonForm() {
 		(*this).gaussianElimination();
+
+		return (*this);
+	}
+
+	// In-place Matrix conversion to RREF.
+	Matrix& Matrix::toReducedEchelonForm() {
+		std::vector<std::size_t> pivotCols = (*this).gaussianElimination();
+
+		// Iterates backwards through the pivotCols vector
+		for (std::size_t i = pivotCols.size(); i > 0; i--) {
+			// Contains the value of the currently selected pivot
+			double pivotVal = (*this)(i - 1, pivotCols[i - 1]);
+			
+			// Scales the selected row so the pivot becomes 1
+			(*this).scaleRow(1 / pivotVal, i - 1);
+
+			// Backwards elimination (makes the entries above in the same column 0)
+			for (std::size_t j = 0; j < i - 1; j++) {
+				(*this).eliminateEntry(i - 1, pivotCols[i - 1], j);
+			}
+		}
 
 		return (*this);
 	}

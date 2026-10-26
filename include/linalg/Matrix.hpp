@@ -54,8 +54,11 @@ namespace linalg {
 		// Add scalar times sourceRow to targetRow; double represents the factor and size_t the indices.
 		Matrix& combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow);
 
-		// Perform forward Gaussian elimination in place and return this matrix for chaining.
+		// Calls gaussianElimination to perform forward Gaussian elimination in place, and return the matrix for chaining.
 		Matrix& toEchelonForm();
+
+		//  Calls gaussianElimination to get pivot locations, and performs backwards elimination to matrix in RREF
+		Matrix& toReducedEchelonForm();
 	};
 
 	// Write a matrix to the supplied stream and return the stream to support chained output.
