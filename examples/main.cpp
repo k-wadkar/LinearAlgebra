@@ -5,25 +5,17 @@
 
 int main()
 {   
-	linalg::Matrix B(3, 4);
+    double a = 1e16;
+    double b = 1.0000000000000002;
+    double c = -1e16;
 
-	B(0, 0) = 0;
-	B(0, 1) = 2;
-	B(0, 2) = 4;
-	B(0, 3) = 6;
+    double ordinary = a * b + c;
+    double fused = std::fma(a, b, c);
 
-	B(1, 0) = 0;
-	B(1, 1) = 4;
-	B(1, 2) = 10;
-	B(1, 3) = 14;
+    std::cout << std::setprecision(17);
 
-	B(2, 0) = 0;
-	B(2, 1) = 6;
-	B(2, 2) = 12;
-	B(2, 3) = 18;
-
-	std::cout << "Matrix B:\n\n" << B << "\n\n\n";
-	std::cout << "Matrix B after Gauss-Jordan reduction:\n\n" << B.toReducedEchelonForm();
+    std::cout << "Ordinary: " << ordinary << '\n';
+    std::cout << "FMA:      " << fused << '\n';
 
     return 0;
 }

@@ -111,7 +111,11 @@ namespace linalg {
 
 		// Update each target entry using the matching source entry.
 		for (std::size_t i = 0; i < cols_; i++) {
-			(*this)(targetRow, i) += scalar * (*this)(sourceRow, i);
+			
+			// Effectively computes:
+			// (*this)(targetRow, i) += scalar * (*this)(sourceRow, i);
+			// ...without the intermediate rounding. Helps with numerical stability.
+			(*this)(targetRow, i) = std::fma(scalar, (*this)(sourceRow, i), (*this)(targetRow, i));
 		}
 
 		return (*this);
@@ -173,6 +177,7 @@ namespace linalg {
 		if ((*this)(targetRow, pivotCol) != 0) { // Need to change this later to work with tolerance
 			double scalar = -(*this)(targetRow, pivotCol) / (*this)(pivotRow, pivotCol);
 			(*this).combineRows(scalar, pivotRow, targetRow);
+			// Explicitly setting the value to zero avoids errors that may arise due to rounding
 			(*this)(targetRow, pivotCol) = 0.0;
 		}
 	}
