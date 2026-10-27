@@ -83,6 +83,23 @@ namespace linalg {
 		return (*this);
 	}
 
+	Matrix& Matrix::divideRow(const double divisor, const std::size_t row_number) {
+		if (row_number >= rows_) {
+			throw std::out_of_range("Attempting to access out-of-bounds matrix row.");
+		}
+
+		if (divisor == 0 || !std::isfinite(divisor)) {
+			throw std::invalid_argument("0 is not a valid scalar for row division.");
+		}
+
+		// Apply the same scale to each element in the selected row.
+		for (std::size_t i = 0; i < cols_; i++) {
+			(*this)(row_number, i) /= divisor;
+		}
+
+		return (*this);
+	}
+
 	Matrix& Matrix::combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow) {
 		if (std::max(sourceRow, targetRow) >= rows_) {
 			throw std::out_of_range("Attempting to access out-of-bounds matrix row.");
@@ -222,7 +239,7 @@ namespace linalg {
 			double pivotVal = (*this)(i - 1, pivotCols[i - 1]);
 			
 			// Scales the selected row so the pivot becomes 1
-			(*this).scaleRow(1 / pivotVal, i - 1);
+			(*this).divideRow(pivotVal, i - 1);
 
 			// Backwards elimination (makes the entries above in the same column 0)
 			for (std::size_t j = 0; j < i - 1; j++) {

@@ -27,6 +27,10 @@ namespace linalg {
 		// Uses the pivot row to zero the selected column in targetRow; modifies this matrix.
 		void eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);
 
+		// Private helper to scaleRow, except divides the row by the scalar rather than multiplying it.
+		// Helpful for improving numerical stability.
+		Matrix& divideRow(const double divisor, const std::size_t row_number);
+
 		// Performs Gaussian elimination and returns the pivot column numbers in a vector
 		std::vector<std::size_t> gaussianElimination();
 
