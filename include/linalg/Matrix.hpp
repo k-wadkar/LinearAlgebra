@@ -22,7 +22,11 @@ namespace linalg {
 
 		// Returns the row at or below startRow which contains the element with the greatest non-zero absolute value in selectedCol
 		// optional distinguished "no pivot found" from a valid row index without a sentinel
-		std::optional<std::size_t> findLargestPivot(const std::size_t selectedCol, const std::size_t startRow) const;
+		std::optional<std::size_t> findLargestPivot(
+			const std::size_t selectedCol, 
+			const std::size_t startRow, 
+			double absolutePivotTheshold
+		) const;
 
 		// Uses the pivot row to zero the selected column in targetRow; modifies this matrix.
 		void eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);
@@ -32,7 +36,7 @@ namespace linalg {
 		Matrix& divideRow(const double divisor, const std::size_t row_number);
 
 		// Performs Gaussian elimination and returns the pivot column numbers in a vector
-		std::vector<std::size_t> gaussianElimination();
+		std::vector<std::size_t> gaussianElimination(double relTol = 0.0);
 
 	public:
 		// Creates a rows-by-cols matrix initialized with zeroes.
@@ -74,17 +78,20 @@ namespace linalg {
 		Matrix& combineRows(const double scalar, const std::size_t sourceRow, const std::size_t targetRow);
 
 		// (Mutating) Calls gaussianElimination to perform forward Gaussian elimination in place, and return the matrix for chaining.
-		Matrix& toEchelonForm();
+		Matrix& toEchelonForm(double relTol = 0.0);
 
 		// (Non-mutating) Calls toEchelonForm on a copy of the calling object Matrix and returns the copy by value
-		Matrix echelonForm() const;
+		Matrix echelonForm(double relTol = 0.0) const;
 
 
 		// (Mutating) Calls gaussianElimination to get pivot locations, and performs backwards elimination to matrix in RREF
-		Matrix& toReducedEchelonForm();
+		Matrix& toReducedEchelonForm(double relTol = 0.0);
 
 		// (Non-mutating) Calls toReducedEchelonForm on a copy of the calling object and returns the copy by value
-		Matrix reducedEchelonForm() const;
+		Matrix reducedEchelonForm(double relTol = 0.0) const;
+
+		// Returns the greatest absolute value in the matrix
+		double maxAbsoluteRealVal() const;
 	};
 
 	// Write a matrix to the supplied stream and return the stream to support chained output.

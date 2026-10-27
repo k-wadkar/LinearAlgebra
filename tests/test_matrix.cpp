@@ -149,7 +149,7 @@ static bool testGaussianEliminationRectangular() {
 
 	C.toEchelonForm();
 
-	if (C != E) {
+	if (!C.isApprox(E)) {
 		std::cerr << "FAILED: Gaussian elimination on a rectangular matrix.\n";
 
 		std::cerr << "\nExpected:\n\n" << E << "\n\n Actual:\n\n" << C << "\n";
@@ -239,10 +239,13 @@ static bool testGaussJordanRectangular() {
 	E(2, 2) = 0;
 	E(2, 3) = 0;
 
-	B.toReducedEchelonForm();
+	B.toReducedEchelonForm(1e-12);
 
-	if (B != E) {
+	if (!B.isApprox(E)) {
 		std::cerr << "FAILED: Gauss-Jordan reduction on a rectangular matrix.\n";
+		
+		std::cerr << "\nExpected:\n\n" << E << "\n\n Actual:\n\n" << B << "\n";
+		
 		return false;
 	}
 

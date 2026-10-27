@@ -141,7 +141,11 @@ namespace linalg {
 
 	// Swaps with the largest absolute value in the column rather than the first non-zero value.
 	// Also referred to as partial pivoting
-	std::optional<std::size_t> Matrix::findLargestPivot(const std::size_t selectedCol, const std::size_t startRow) const {
+	std::optional<std::size_t> Matrix::findLargestPivot(
+		const std::size_t selectedCol,
+		const std::size_t startRow,
+		double absolutePivotThreshold
+	) const {
 		// Reject out-of-bound arguments
 		if (selectedCol >= cols_ || startRow > rows_) {
 			throw std::out_of_range("Attempting to access out-of-bounds matrix column or row.");
@@ -156,12 +160,15 @@ namespace linalg {
 			double candidateMagnitude = std::abs((*this)(i, selectedCol));
 
 			// If the selected element is nonzero AND either we haven't found a pivot yet, or the pivots we have found have lower absolute values...
-			if ((*this)(i, selectedCol) != 0
+			if (candidateMagnitude > absolutePivotThreshold
 				&& (
 					!largestSoFar.has_value()
 					|| std::abs((*this)(largestSoFar.value(), selectedCol)) < candidateMagnitude)) {
 				largestSoFar = i;
 			}
+			//else {
+			//	(*this)(i, selectedCol) = 0.0; // Come back to this - does the function now need to be non-const?
+			//}
 		}
 
 		return largestSoFar;
@@ -184,14 +191,20 @@ namespace linalg {
 
 	// (Private) In-place Matrix conversion to Echelon form.
 	// Returns a vector containing pivot column numbers
-	std::vector<std::size_t> Matrix::gaussianElimination() {
+	std::vector<std::size_t> Matrix::gaussianElimination(double relTol) {
+		if (!std::isfinite(relTol) || relTol < 0.0) {
+			throw std::invalid_argument("Relative tolerance value must be finite and non-negative.");
+		}
+		
 		std::vector<std::size_t> pivotCols;
 		std::size_t pivotRow = 0;
 		std::size_t selectedCol = 0;
-		
+
+		double absolutePivotThreshold = relTol == 0.0 ? 0.0 : (*this).maxAbsoluteRealVal() * relTol;
+
 		// Advance through columns, skipping columns without a pivot and advancing rows only when one is found.
 		while (pivotRow < rows_ && selectedCol < cols_) {
-			auto temp = (*this).findLargestPivot(selectedCol, pivotRow);
+			auto temp = (*this).findLargestPivot(selectedCol, pivotRow, absolutePivotThreshold);
 
 			// If there's a pivot in this column...
 			if (temp.has_value()) {
@@ -219,24 +232,26 @@ namespace linalg {
 	}
 
 	// In-place Matrix conversion to Echelon Form.
-	Matrix& Matrix::toEchelonForm() {
-		(*this).gaussianElimination();
+	Matrix& Matrix::toEchelonForm(double relTol) {
+		(*this).gaussianElimination(relTol);
 
 		return (*this);
 	}
 
 	// Copies the matrix and performs Gaussian reduction on the copy, then returns it
-	Matrix Matrix::echelonForm() const {
+	Matrix Matrix::echelonForm(double relTol) const {
 		Matrix receiverCopy = (*this);
 
-		receiverCopy.toEchelonForm();
+		receiverCopy.toEchelonForm(relTol);
 
 		return receiverCopy;
 	}
 
 	// In-place Matrix conversion to RREF.
-	Matrix& Matrix::toReducedEchelonForm() {
-		std::vector<std::size_t> pivotCols = (*this).gaussianElimination();
+	Matrix& Matrix::toReducedEchelonForm(double relTol) {
+		std::vector<std::size_t> pivotCols = (*this).gaussianElimination(relTol);
+
+		//std::cout << (*this) << "\n\n";
 
 		// Iterates backwards through the pivotCols vector
 		for (std::size_t i = pivotCols.size(); i > 0; i--) {
@@ -246,9 +261,13 @@ namespace linalg {
 			// Scales the selected row so the pivot becomes 1
 			(*this).divideRow(pivotVal, i - 1);
 
+			//std::cout << (*this) << "\n\n";
+
 			// Backwards elimination (makes the entries above in the same column 0)
 			for (std::size_t j = 0; j < i - 1; j++) {
 				(*this).eliminateEntry(i - 1, pivotCols[i - 1], j);
+
+				//std::cout << (*this) << "\n\n";
 			}
 		}
 
@@ -256,10 +275,10 @@ namespace linalg {
 	}
 
 	// Copies the matrix and performs Gauss-Jordan reduction on the copy, then returns it
-	Matrix Matrix::reducedEchelonForm() const {
+	Matrix Matrix::reducedEchelonForm(double relTol) const {
 		Matrix receiverCopy = (*this);
 
-		receiverCopy.toReducedEchelonForm();
+		receiverCopy.toReducedEchelonForm(relTol);
 
 		return receiverCopy;
 	}
@@ -314,6 +333,8 @@ namespace linalg {
 			return false;
 		}
 
+		std::cout << std::scientific << std::setprecision(18);
+
 		for (std::size_t r = 0; r < (*this).rows(); r++) {
 			for (std::size_t c = 0; c < (*this).cols(); c++) {
 				double a = (*this)(r, c);
@@ -326,17 +347,17 @@ namespace linalg {
 				}
 				// If we are considering this, then the values were not equal
 				// In that case, if either value is infinite, we must reject it immediately
-				if (!std::isfinite(a) || !std::isfinite(b)) {
+				if (!std::isfinite(a) || !std::isfinite(b)) {					
 					return false;
 				}
-				
+
 				double absDiff = std::abs(a - b);
 
 				double permittedDiff = absTol + relTol * std::max(std::abs(a), std::abs(b));
 
 				// Normal tolerance formula
 				// |a - b| <= eps_abs + eps_rel * max(|a|,|b|)
-				if (!(absDiff <= permittedDiff)) {
+				if (!(absDiff <= permittedDiff)) {	
 					return false;
 				}
 			}
@@ -417,7 +438,19 @@ namespace linalg {
 		return N;
 	}
 
-	
+	double Matrix::maxAbsoluteRealVal() const {
+		double maxSoFar = 0.0;
+
+		for (double currentElementVal : data_) {
+			if (!std::isfinite(currentElementVal)) { // Rejects both NaN and infinite values
+				throw std::invalid_argument("Cannot find maximum absolute real value in a matrix containing NaN or an infinite value.");
+			}
+
+			maxSoFar = std::max(maxSoFar, std::abs(currentElementVal));
+		}
+
+		return maxSoFar;
+	}
 	
 	
 	
