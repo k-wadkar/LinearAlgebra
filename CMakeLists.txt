@@ -87,3 +87,20 @@ add_test(
     NAME PermutationMatrixTests
     COMMAND test_permutation_matrix
 )
+
+# ==========================================
+# PLU Factorisation Test Executable
+# ==========================================
+
+add_executable(test_PLU_factorisation
+    tests/test_PLU_factorisation.cpp
+)
+
+# The test executable uses the same library implementation as the example.
+target_link_libraries(test_PLU_factorisation PRIVATE linalg)
+
+# Tell CTest how to run the PLU factorisation tests.
+add_test(
+    NAME PLUFactorisationTests
+    COMMAND test_PLU_factorisation
+)

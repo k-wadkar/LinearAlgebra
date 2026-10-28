@@ -315,13 +315,13 @@ namespace linalg {
 	}
 
 	PLUFactorisation Matrix::pluFactorisation() const {
-		if ((*this).rows() != (*this).cols()) {
+		/*if ((*this).rows() != (*this).cols()) {
 			throw std::invalid_argument("Attempted PLU factorisation on a non-square matrix.");
-		}
+		}*/
 
 		PermutationMatrix P((*this).rows());
 
-		Matrix L((*this).rows(), (*this).cols());
+		Matrix L((*this).rows(), (*this).rows());
 
 		for (std::size_t i = 0; i < (*this).rows(); i++) {
 			L(i, i) = 1.0;
@@ -329,9 +329,11 @@ namespace linalg {
 
 		Matrix U = (*this);
 
-		if (U.gaussianElimination(0.0, &L, &P).size() != U.cols()) {
+		/*if (U.gaussianElimination(0.0, &L, &P).size() != U.cols()) {
 			throw std::invalid_argument("Attempted PLU factorisation of a rank-deficient matrix.");
-		}
+		}*/
+
+		U.gaussianElimination(0.0, &L, &P);
 
 		return { P, L, U };
 	};
