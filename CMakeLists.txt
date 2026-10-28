@@ -28,7 +28,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(linalg STATIC
     src/Matrix.cpp
     include/linalg/Matrix.hpp
-   )
+    src/PermutationMatrix.cpp
+    include/linalg/PermutationMatrix.hpp
+)
 
 # Build the reusable library as a static archive. Its header is listed for IDEs
 # and project generators; Matrix.cpp supplies the compiled implementation.
@@ -52,7 +54,7 @@ add_executable(example
 target_link_libraries(example PRIVATE linalg)
 
 # ==========================================
-# Test Executable
+# Matrix Test Executable
 # ==========================================
 
 add_executable(test_matrix
@@ -66,4 +68,21 @@ target_link_libraries(test_matrix PRIVATE linalg)
 add_test(
     NAME MatrixTests
     COMMAND test_matrix
+)
+
+# ==========================================
+# Permutation Matrix Test Executable
+# ==========================================
+
+add_executable(test_permutation_matrix
+    tests/test_permutation_matrix.cpp
+)
+
+# The test executable uses the same library implementation as the example.
+target_link_libraries(test_permutation_matrix PRIVATE linalg)
+
+# Tell CTest how to run the built test executable.
+add_test(
+    NAME PermutationMatrixTests
+    COMMAND test_permutation_matrix
 )

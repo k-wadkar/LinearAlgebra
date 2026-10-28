@@ -1,21 +1,22 @@
 #include <iostream>
 #include <linalg/Matrix.hpp>
+#include <linalg/PermutationMatrix.hpp>
 #include <stdexcept>
 #include <iomanip>
 
 int main()
 {   
-    double a = 1e16;
-    double b = 1.0000000000000002;
-    double c = -1e16;
+    linalg::PermutationMatrix A(6);
 
-    double ordinary = a * b + c;
-    double fused = std::fma(a, b, c);
+    A.swapRows(0, 3);
 
-    std::cout << std::setprecision(17);
+    A.swapRows(3, 2);
 
-    std::cout << "Ordinary: " << ordinary << '\n';
-    std::cout << "FMA:      " << fused << '\n';
+    A.swapRows(0, 5);
+
+    A.swapRows(1, 4);
+
+    std::cout << A;
 
     return 0;
 }
