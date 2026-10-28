@@ -1,5 +1,6 @@
 #include <linalg/Matrix.hpp>
 #include <linalg/PermutationMatrix.hpp>
+#include <linalg/PLUFactorisation.hpp>
 #include <stdexcept>
 #include <ostream>
 #include <iomanip>
@@ -313,7 +314,27 @@ namespace linalg {
 		return receiverCopy;
 	}
 
+	PLUFactorisation Matrix::pluFactorisation() const {
+		if ((*this).rows() != (*this).cols()) {
+			throw std::invalid_argument("Attempted PLU factorisation on a non-square matrix.");
+		}
 
+		PermutationMatrix P((*this).rows());
+
+		Matrix L((*this).rows(), (*this).cols());
+
+		for (std::size_t i = 0; i < (*this).rows(); i++) {
+			L(i, i) = 1.0;
+		}
+
+		Matrix U = (*this);
+
+		if (U.gaussianElimination(0.0, &L, &P).size() != U.cols()) {
+			throw std::invalid_argument("Attempted PLU factorisation of a rank-deficient matrix.");
+		}
+
+		return { P, L, U };
+	};
 
 
 

@@ -8,6 +8,7 @@
 namespace linalg {
 	
 	class PermutationMatrix;
+	struct PLUFactorisation;
 	
 	// A dynamically sized matrix of double-precision values.
 	class Matrix {
@@ -96,6 +97,8 @@ namespace linalg {
 
 		// (Non-mutating) Calls toReducedEchelonForm on a copy of the calling object and returns the copy by value
 		Matrix reducedEchelonForm(double relTol = 0.0) const;
+
+		PLUFactorisation pluFactorisation() const;
 
 		// Returns the greatest absolute value in the matrix
 		double maxAbsoluteRealVal() const;
