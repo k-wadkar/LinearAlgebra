@@ -10,6 +10,7 @@
 
 
 #include <linalg/PermutationMatrix.hpp>
+#include <linalg/Matrix.hpp>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -233,6 +234,100 @@ static bool testEmptyMatrixEntryAccessThrows() {
 	return true;
 }
 
+// Verifies that multiplying by the identity permutation preserves a rectangular dense matrix.
+static bool testIdentityPermutationMatrixProduct() {
+	linalg::PermutationMatrix P(3);
+
+	linalg::Matrix A(3, 2);
+	A(0, 0) = 1.0;
+	A(0, 1) = -2.0;
+	A(1, 0) = 3.5;
+	A(1, 1) = 4.0;
+	A(2, 0) = 0.0;
+	A(2, 1) = 8.25;
+
+	const linalg::Matrix result = P * A;
+
+	if (result.rows() != A.rows() || result.cols() != A.cols() || result != A) {
+		std::cerr << "FAILED: Identity permutation changed the dense matrix product.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Identity permutation times dense matrix.\n";
+	return true;
+}
+
+// Verifies that left multiplication reorders dense matrix rows as the permutation specifies.
+static bool testPermutationMatrixProductReordersRows() {
+	linalg::PermutationMatrix P(4);
+	P.swapRows(0, 3).swapRows(1, 2);
+
+	linalg::Matrix A(4, 3);
+	A(0, 0) = 1.0;
+	A(0, 1) = 2.0;
+	A(0, 2) = 3.0;
+	A(1, 0) = 4.0;
+	A(1, 1) = 5.0;
+	A(1, 2) = 6.0;
+	A(2, 0) = -7.0;
+	A(2, 1) = -8.0;
+	A(2, 2) = -9.0;
+	A(3, 0) = 10.0;
+	A(3, 1) = 11.0;
+	A(3, 2) = 12.0;
+
+	linalg::Matrix expected(4, 3);
+	expected(0, 0) = 10.0;
+	expected(0, 1) = 11.0;
+	expected(0, 2) = 12.0;
+	expected(1, 0) = -7.0;
+	expected(1, 1) = -8.0;
+	expected(1, 2) = -9.0;
+	expected(2, 0) = 4.0;
+	expected(2, 1) = 5.0;
+	expected(2, 2) = 6.0;
+	expected(3, 0) = 1.0;
+	expected(3, 1) = 2.0;
+	expected(3, 2) = 3.0;
+
+	const linalg::Matrix result = P * A;
+
+	if (result != expected) {
+		std::cerr << "FAILED: Permutation matrix product reordered dense rows incorrectly.\n";
+		return false;
+	}
+
+	if (A(0, 0) != 1.0 || A(1, 0) != 4.0 || A(2, 0) != -7.0 || A(3, 0) != 10.0) {
+		std::cerr << "FAILED: Permutation matrix product modified its dense matrix input.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Permutation matrix product reorders dense matrix rows.\n";
+	return true;
+}
+
+// Verifies that multiplication rejects a dense matrix with an incompatible row count.
+static bool testPermutationMatrixProductRejectsIncompatibleDimensions() {
+	linalg::PermutationMatrix P(3);
+	linalg::Matrix A(2, 2);
+	bool threwInvalidArgument = false;
+
+	try {
+		(void)(P * A);
+	}
+	catch (const std::invalid_argument&) {
+		threwInvalidArgument = true;
+	}
+
+	if (!threwInvalidArgument) {
+		std::cerr << "FAILED: Incompatible permutation matrix product dimensions were accepted.\n";
+		return false;
+	}
+
+	std::cout << "PASSED: Permutation matrix product rejects incompatible dimensions.\n";
+	return true;
+}
+
 // Verifies the formatted matrix output and that stream formatting is restored afterward.
 static bool testStreamOutputAndFormattingState() {
 	linalg::PermutationMatrix A(2);
@@ -299,6 +394,9 @@ int main() {
 	allPassed = testEntryAccessRejectsInvalidRow() && allPassed;
 	allPassed = testEntryAccessRejectsInvalidColumn() && allPassed;
 	allPassed = testEmptyMatrixEntryAccessThrows() && allPassed;
+	allPassed = testIdentityPermutationMatrixProduct() && allPassed;
+	allPassed = testPermutationMatrixProductReordersRows() && allPassed;
+	allPassed = testPermutationMatrixProductRejectsIncompatibleDimensions() && allPassed;
 	allPassed = testStreamOutputAndFormattingState() && allPassed;
 	allPassed = testEmptyMatrixStreamOutput() && allPassed;
 

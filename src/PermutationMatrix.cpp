@@ -1,4 +1,5 @@
 #include <linalg/PermutationMatrix.hpp>
+#include <linalg/Matrix.hpp>
 #include <numeric>
 #include <stdexcept>
 #include <iomanip>
@@ -12,6 +13,18 @@ namespace linalg {
 
 	std::size_t PermutationMatrix::size() const {
 		return permutationVector_.size();
+	}
+
+	/*std::vector<std::size_t> PermutationMatrix::permutationVector() const {
+		return permutationVector_;
+	};*/
+
+	std::size_t PermutationMatrix::originalRow(std::size_t destinationRow) const {
+		if (destinationRow >= permutationVector_.size()) {
+			throw std::invalid_argument("Attempted to access out-of-bounds row.");
+		}
+		
+		return permutationVector_[destinationRow];
 	}
 
 	PermutationMatrix& PermutationMatrix::swapRows(
@@ -34,6 +47,24 @@ namespace linalg {
 		
 		return permutationVector_[i] == j ? 1.0 : 0.0;
 	}
+
+	Matrix operator* (const PermutationMatrix& A, const Matrix& B) {
+		if (A.size() != B.rows()) {
+			throw std::invalid_argument("Attempted multiplication of matrices which are not multiplicatively conformable.");
+		}
+		
+		Matrix C(B.rows(), B.cols());
+		
+		for (std::size_t i = 0; i < B.rows(); i++) {
+			for (std::size_t j = 0; j < B.cols(); j++) {
+				C(i, j) = B(A.originalRow(i), j);
+			}
+			
+		}
+
+		return C;
+	}
+
 
 	std::ostream& operator<<(std::ostream& os, const PermutationMatrix& A) {
 
