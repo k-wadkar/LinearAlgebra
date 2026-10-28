@@ -6,6 +6,9 @@
 #include <optional>
 
 namespace linalg {
+	
+	class PermutationMatrix;
+	
 	// A dynamically sized matrix of double-precision values.
 	class Matrix {
 	private:
@@ -29,14 +32,18 @@ namespace linalg {
 		) const;
 
 		// Uses the pivot row to zero the selected column in targetRow; modifies this matrix.
-		void eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);
+		double eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow);
 
 		// Private helper to scaleRow, except divides the row by the scalar rather than multiplying it.
 		// Helpful for improving numerical stability.
 		Matrix& divideRow(const double divisor, const std::size_t row_number);
 
 		// Performs Gaussian elimination and returns the pivot column numbers in a vector
-		std::vector<std::size_t> gaussianElimination(double relTol = 0.0);
+		std::vector<std::size_t> gaussianElimination(
+			double relTol = 0.0,
+			Matrix* L = nullptr,
+			PermutationMatrix* P = nullptr
+		);
 
 	public:
 		// Creates a rows-by-cols matrix initialized with zeroes.

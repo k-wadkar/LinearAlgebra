@@ -1,4 +1,5 @@
 #include <linalg/Matrix.hpp>
+#include <linalg/PermutationMatrix.hpp>
 #include <stdexcept>
 #include <ostream>
 #include <iomanip>
@@ -176,7 +177,7 @@ namespace linalg {
 
 	// Uses row combination to eliminate a specific entry (i.e. make it zero)
 	// Numerically naive, so may actually produce a tiny value rather than exactly zero
-	void Matrix::eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow) {
+	double Matrix::eliminateEntry(std::size_t pivotRow, std::size_t pivotCol, std::size_t targetRow) {
 		if ((*this)(pivotRow, pivotCol) == 0) {
 			throw std::invalid_argument("Attempted to eliminate entry using a zero pivot.");
 		}
@@ -186,12 +187,21 @@ namespace linalg {
 			(*this).combineRows(scalar, pivotRow, targetRow);
 			// Explicitly setting the value to zero avoids errors that may arise due to rounding
 			(*this)(targetRow, pivotCol) = 0.0;
+
+			return -scalar;
+		}
+		else {
+			return 0.0; // Is this the right thing to to here?
 		}
 	}
 
 	// (Private) In-place Matrix conversion to Echelon form.
 	// Returns a vector containing pivot column numbers
-	std::vector<std::size_t> Matrix::gaussianElimination(double relTol) {
+	std::vector<std::size_t> Matrix::gaussianElimination(
+		double relTol,
+		Matrix* L,
+		PermutationMatrix* P
+	) {
 		if (!std::isfinite(relTol) || relTol < 0.0) {
 			throw std::invalid_argument("Relative tolerance value must be finite and non-negative.");
 		}
@@ -204,20 +214,40 @@ namespace linalg {
 
 		// Advance through columns, skipping columns without a pivot and advancing rows only when one is found.
 		while (pivotRow < rows_ && selectedCol < cols_) {
-			auto temp = (*this).findLargestPivot(selectedCol, pivotRow, absolutePivotThreshold);
+			std::optional<std::size_t> temp = (*this).findLargestPivot(selectedCol, pivotRow, absolutePivotThreshold);
 
 			// If there's a pivot in this column...
 			if (temp.has_value()) {
 				pivotCols.push_back(selectedCol);
 				
-				// Keep the current row when possible; otherwise bring the discovered pivot into position.
+				// Only swap if the pivot isn't in the next pivot row already
 				if (pivotRow != temp.value()) {
+					// Swap next pivot row with row containing selected pivot value
 					(*this).swapRows(pivotRow, temp.value());
+					
+					// If the caller wants the permutation matrix recorded...
+					if (P != nullptr) {
+						// Update the permutation matrix to account for the swap
+						(*P).swapRows(pivotRow, temp.value());
+					}
+
+					// If the caller wants the lower triangular matrix recorded for PLU factorisation...
+					if (L != nullptr) {
+						// Update the lower triangular matrix to account for the swap
+						for (std::size_t x = 0; x < pivotRow; x++) {
+							std::swap((*L)(pivotRow, x), (*L)(temp.value(), x));
+						}
+					}
 				}
 
 				// Clear entries below this pivot so each subsequent row has an earlier zero prefix.
 				for (std::size_t i = pivotRow + 1; i < rows_; i++) {
-					(*this).eliminateEntry(pivotRow, selectedCol, i);
+					double LEntry = (*this).eliminateEntry(pivotRow, selectedCol, i);
+
+					// If the caller wants the lower triangular matrix recorded for PLU factorisation...
+					if (L != nullptr) {
+						(*L)(i, pivotRow) = LEntry;
+					}
 				}
 
 				pivotRow++;
