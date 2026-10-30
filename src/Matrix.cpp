@@ -449,8 +449,9 @@ namespace linalg {
 
 		// Each output entry is a dot product: k traverses a row of A and column of B.
 		for (std::size_t i = 0; i < A.rows(); i++) {
-			for (std::size_t j = 0; j < B.cols(); j++) {
-				for (std::size_t k = 0; k < A.cols(); k++) {
+			for (std::size_t k = 0; k < A.cols(); k++) {
+				for (std::size_t j = 0; j < B.cols(); j++) {
+				
 					C(i, j) += A(i, k) * B(k, j);
 				}
 			}

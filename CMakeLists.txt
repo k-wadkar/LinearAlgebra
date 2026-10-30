@@ -14,6 +14,33 @@ endif()
 # Declare the project and enable C++ as its implementation language.
 project(LinearAlgebra LANGUAGES CXX)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG 3.4.0
+)
+
+set(BUILD_TESTING OFF CACHE BOOL "Disable dependency tests" FORCE)
+
+FetchContent_MakeAvailable(eigen)
+
+# ==========================================
+# Google Benchmark
+# ==========================================
+
+FetchContent_Declare(
+    googlebenchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG v1.9.4
+)
+
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable Google Benchmark tests" FORCE)
+
+FetchContent_MakeAvailable(googlebenchmark)
+
+
 # Register tests with CTest so they can be run after configuration and build.
 enable_testing()
 
@@ -104,3 +131,27 @@ add_test(
     NAME PLUFactorisationTests
     COMMAND test_PLU_factorisation
 )
+
+
+# ==========================================
+# Benchmarks
+# ==========================================
+
+add_executable(benchmark_multiplication
+    benchmarks/benchmark_multiplication.cpp
+)
+
+target_link_libraries(benchmark_multiplication PRIVATE
+    linalg
+    Eigen3::Eigen
+)
+
+target_link_libraries(benchmark_multiplication PRIVATE
+    linalg
+    Eigen3::Eigen
+    benchmark::benchmark
+)
+
+set_property(TARGET linalg PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+
+set_property(TARGET benchmark_multiplication PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
