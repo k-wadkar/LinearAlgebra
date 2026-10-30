@@ -58,6 +58,7 @@ add_library(linalg STATIC
     src/PermutationMatrix.cpp
     include/linalg/PermutationMatrix.hpp
     include/linalg/PLUFactorisation.hpp
+    src/PLUFactorisation.cpp
 )
 
 # Build the reusable library as a static archive. Its header is listed for IDEs
