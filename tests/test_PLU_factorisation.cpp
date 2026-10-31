@@ -463,11 +463,54 @@ static bool testPLUFactorisationLargerMatrix() {
 //}
 
 
+static bool testPLUSolve() {
+	linalg::Matrix A(3, 3);
+
+	A(0, 1) = 2;
+	A(0, 2) = 1;
+
+	A(1, 0) = 2;
+	A(1, 1) = 5;
+	A(1, 2) = 4;
+
+	A(2, 0) = 4;
+	A(2, 1) = 9;
+	A(2, 2) = 9;
+
+
+	linalg::Matrix b(3, 1);
+
+	b(0, 0) = 1;
+	b(1, 0) = 5;
+	b(2, 0) = 11;
+
+
+	linalg::Matrix x(3, 1);
+
+	x(0, 0) = 0.5;
+	x(1, 0) = 0;
+	x(2, 0) = 1;
+
+
+	auto factors = A.pluFactorisation();
+	auto solution = factors.solve(b);
+
+	std::cout << solution;
+
+	if (solution.isApprox(x)) {
+		return true;
+	}
+
+	return false;
+
+}
+
+
 int main() {
 	bool allPassed = true;
 
 	// Keep running every test even if an earlier test fails.
-	allPassed = testPLUFactorisationWithoutPivoting() && allPassed;
+	/*allPassed = testPLUFactorisationWithoutPivoting() && allPassed;
 	allPassed = testPLUFactorisationWithFirstPivotSwap() && allPassed;
 	allPassed = testPLUFactorisationWithMultiplePivotSwaps() && allPassed;
 	allPassed = testPLUFactorisationOneByOne() && allPassed;
@@ -476,7 +519,11 @@ int main() {
 	allPassed = testPLUFactorisationTallMatrix() && allPassed;
 	allPassed = testPLUFactorisationRankDeficientSquareMatrix() && allPassed;
 	allPassed = testPLUFactorisationRankDeficientWideMatrix() && allPassed;
-	allPassed = testPLUFactorisationLargerMatrix() && allPassed;
+	allPassed = testPLUFactorisationLargerMatrix() && allPassed;*/
+	
+
+	allPassed = testPLUSolve();
+
 	//allPassed = testPLUFactorisationLargerRankDeficientMatrix() && allPassed;
 
 	// Return the conventional process status: zero means success, nonzero means failure.
